@@ -2,19 +2,43 @@
 
 Detect predatory clauses in any contract. 39 flags across security, financial, privacy, and general consumer protection categories. Pattern-based detection of auto-renewal traps, excessive ETFs, forced arbitration, liability caps, data sharing, and more.
 
-**Try it now:** [bastion-contract-scan.onrender.com](https://bastion-contract-scan.onrender.com)
-
 Built on a decade of home security industry experience. Works on any consumer contract.
 
-## Install
+Part of the [BASTION](https://github.com/Pachacutie/BASTION) portfolio.
+
+---
+
+## Use It Online
+
+No install needed. Open in your browser, upload your contract, get your report:
+
+**[bastion-contract-scan.onrender.com](https://bastion-contract-scan.onrender.com)**
+
+Your contract is processed in memory and immediately deleted. We never store, log, or read your files.
+
+---
+
+## Run It Locally (Complete Privacy)
+
+For maximum privacy, install and run on your own computer. Your contract never leaves your device.
+
+### Install
+
+Requires Python 3.12+.
 
 ```bash
 pip install bastion-contract-scan
 ```
 
-Requires Python 3.12+.
+### Launch the Web Interface
 
-## Usage
+```bash
+bastion-contract-scan --web
+```
+
+Opens a browser window with the same drag-and-drop interface — running entirely on your machine.
+
+### Or Use the Command Line
 
 ```bash
 # Scan a PDF contract
@@ -34,10 +58,9 @@ bastion-contract-scan --json agreement.pdf > results.json
 
 # Markdown output
 bastion-contract-scan --md agreement.pdf > report.md
-
-# No color (for piping)
-bastion-contract-scan --no-color agreement.pdf
 ```
+
+---
 
 ## What It Detects
 
@@ -74,15 +97,7 @@ bastion-contract-scan --no-color agreement.pdf
 
 ## How It Works
 
-Pattern matching against extracted text. No AI, no cloud, no network calls. Your contract never leaves your machine.
-
-Each flag has a set of trigger phrases — keywords and regex patterns drawn from real contract language across the home security industry. When a trigger matches, the scanner extracts the surrounding context as evidence.
-
-## Output Formats
-
-- **Terminal** (default): Colored report with severity sections and score
-- **JSON** (`--json`): Structured data for programmatic consumption
-- **Markdown** (`--md`): Formatted report for documentation
+Pattern matching against extracted text. No AI, no cloud, no network calls. Each flag has a set of trigger phrases — keywords and regex patterns drawn from real contract language. When a trigger matches, the scanner extracts the surrounding context as evidence.
 
 ## Development
 
