@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BASTION Contract Scan — Free Contract Red Flag Scanner</title>
+
+<!-- Open Graph (social sharing previews) -->
+<meta property="og:title" content="BASTION Contract Scan">
+<meta property="og:description" content="Free tool that scans your contract for predatory clauses. Auto-renewal traps, forced arbitration, hidden fees — see what they're hiding before you sign.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bastion-scan.onrender.com">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BASTION Contract Scan">
+<meta name="twitter:description" content="Free tool that scans your contract for predatory clauses. Upload your PDF — see what they're hiding before you sign.">
+
+<meta name="description" content="Free tool that scans contracts for predatory clauses. Detects auto-renewal traps, forced arbitration, liability caps, hidden fees, and 35+ other red flags. No account required.">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.6;color:#333;background:#f5f5f5;min-height:100vh}
+.container{max-width:720px;margin:0 auto;padding:32px 24px}
+h1{font-size:28px;text-align:center;margin-bottom:8px}
+.subtitle{text-align:center;color:#666;font-size:16px;margin-bottom:24px}
+.explainer{background:#fff;border-radius:8px;padding:20px 24px;margin-bottom:28px;font-size:15px;color:#555;line-height:1.7}
+.explainer strong{color:#333}
+.explainer ul{margin:8px 0 0 20px;padding:0}
+.explainer li{margin:4px 0}
+.upload-area{background:#fff;border:3px dashed #ccc;border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;margin-bottom:24px}
+.upload-area:hover,.upload-area.dragover{border-color:#4a90d9;background:#f0f6ff}
+.upload-area p{font-size:18px;color:#555;margin-bottom:8px}
+.upload-area .hint{font-size:14px;color:#999}
+.upload-area input[type=file]{display:none}
+.divider{text-align:center;color:#999;font-size:14px;margin:16px 0;position:relative}
+.divider::before,.divider::after{content:"";position:absolute;top:50%;width:40%;height:1px;background:#ddd}
+.divider::before{left:0}
+.divider::after{right:0}
+textarea{width:100%;min-height:150px;padding:16px;border:2px solid #ddd;border-radius:8px;font-family:inherit;font-size:15px;resize:vertical;margin-bottom:16px}
+textarea:focus{outline:none;border-color:#4a90d9}
+.btn{display:block;width:100%;padding:16px;background:#2c3e50;color:#fff;border:none;border-radius:8px;font-size:18px;cursor:pointer;transition:background 0.2s}
+.btn:hover{background:#1a252f}
+.btn:disabled{background:#999;cursor:not-allowed}
+.error{background:#fff3f3;border:1px solid #dc3545;color:#dc3545;padding:16px;border-radius:8px;margin-bottom:16px;font-size:15px}
+.file-name{margin-top:12px;font-size:15px;color:#333;font-weight:bold}
+footer{text-align:center;color:#999;font-size:12px;margin-top:48px}
+#results{margin-top:32px}
+.scanning{text-align:center;padding:40px 20px;font-size:17px;color:#555}
+.scanning .dots{display:inline-block;width:24px;text-align:left}
+.scanning p{margin-top:8px;font-size:13px;color:#999}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>BASTION Contract Scan</h1>
+<p class="subtitle">Upload your contract. See what's hiding in the fine print.</p>
+
+<div class="explainer">
+<strong>What is this?</strong> A free tool that reads your contract and flags the clauses that could cost you money, limit your rights, or lock you in. Built by someone with a decade of experience in the home security industry — but it works on any contract.
+<ul>
+<li><strong>Upload a PDF or paste text</strong> from any contract — security, telecom, gym, SaaS, anything</li>
+<li><strong>Get a plain-English report</strong> with color-coded flags: red (serious), yellow (watch out), green (just the facts)</li>
+<li><strong>No account, no signup, no cost</strong> — just answers</li>
+</ul>
+</div>
+
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
+<form id="scan-form" method="POST" action="/scan" enctype="multipart/form-data">
+<div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+<p>Drop your contract here or click to browse</p>
+<p class="hint">PDF or text files accepted (max 10MB)</p>
+<input type="file" id="file-input" name="file" accept=".pdf,.txt,.text">
+<div class="file-name" id="file-name"></div>
+</div>
+
+<div class="divider">or paste your contract text</div>
+
+<textarea name="text" id="text-input" placeholder="Paste your contract text here..."></textarea>
+
+<button type="submit" class="btn" id="scan-btn">Scan Contract</button>
+</form>
+
+<div id="scanning-msg" style="display:none">
+<div class="scanning">
+Reading your contract<span class="dots"></span>
+<p>This usually takes a few seconds.</p>
+</div>
+</div>
+
+<div id="results">
+{% if report_html %}
+{{ report_html|safe }}
+{% endif %}
+</div>
+
+{% if hosted %}
+<div style="background:#f0f4ff;border:1px solid #cce0ff;border-radius:8px;padding:16px;margin-top:32px;font-size:14px;color:#555;text-align:center">
+Your contract is processed in memory and immediately deleted. We never store, log, or read your files.<br>
+For complete privacy, <a href="https://github.com/Pachacutie/bastion-contract-scan#install" style="color:#4a90d9">install BASTION Contract Scan locally</a> — your contract never leaves your device.
+</div>
+<footer>Processed on our server. Files deleted immediately after scanning.</footer>
+{% else %}
+<footer>Running locally — your contract never leaves your computer.</footer>
+{% endif %}
+</div>
+
+<script>
+const dropZone=document.getElementById("drop-zone"),fileInput=document.getElementById("file-input"),fileName=document.getElementById("file-name"),textInput=document.getElementById("text-input"),form=document.getElementById("scan-form"),btn=document.getElementById("scan-btn"),scanMsg=document.getElementById("scanning-msg");
+["dragenter","dragover"].forEach(e=>dropZone.addEventListener(e,ev=>{ev.preventDefault();dropZone.classList.add("dragover")}));
+["dragleave","drop"].forEach(e=>dropZone.addEventListener(e,ev=>{ev.preventDefault();dropZone.classList.remove("dragover")}));
+dropZone.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f){fileInput.files=e.dataTransfer.files;fileName.textContent=f.name;textInput.value=""}});
+fileInput.addEventListener("change",()=>{if(fileInput.files[0]){fileName.textContent=fileInput.files[0].name;textInput.value=""}});
+textInput.addEventListener("input",()=>{if(textInput.value.trim()){fileInput.value="";fileName.textContent=""}});
+form.addEventListener("submit",()=>{btn.disabled=true;btn.textContent="Scanning...";scanMsg.style.display="block"});
+// Animated dots
+setInterval(()=>{const d=document.querySelector(".dots");if(d){d.textContent=d.textContent.length>=3?"":d.textContent+"."}},400);
+</script>
+</body>
+</html>
