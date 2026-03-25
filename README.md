@@ -2,7 +2,7 @@
 
 Detect predatory clauses in any contract. 39 flags across security, financial, privacy, and general consumer protection categories. Pattern-based detection of auto-renewal traps, excessive ETFs, forced arbitration, liability caps, data sharing, and more.
 
-**Try it now:** [bastion-scan.onrender.com](https://bastion-scan.onrender.com)
+**Try it now:** [bastion-contract-scan.onrender.com](https://bastion-contract-scan.onrender.com)
 
 Built on a decade of home security industry experience. Works on any consumer contract.
 
