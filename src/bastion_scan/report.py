@@ -250,7 +250,7 @@ def _render_html(
     readability: ReadabilityResult | None = None,
 ) -> str:
     """Render a self-contained HTML report."""
-    from . import __version__ as ver
+    from html import escape as esc
 
     findings_html = []
     by_severity: dict[Severity, list[Finding]] = {
@@ -313,7 +313,7 @@ h1{{font-size:24px;margin-bottom:8px}}
 </head>
 <body>
 <h1>BASTION — Contract Scan Results</h1>
-<p class="meta">Source: {extraction.source} | Words: {extraction.word_count:,}{f" | Pages: {extraction.page_count}" if extraction.page_count else ""}</p>
+<p class="meta">Source: {esc(extraction.source)} | Words: {extraction.word_count:,}{f" | Pages: {extraction.page_count}" if extraction.page_count else ""}</p>
 {readability_block}
 <div class="score">
 <span style="color:#dc3545">{result.red_count} RED</span> &middot;
@@ -324,7 +324,7 @@ h1{{font-size:24px;margin-bottom:8px}}
 </div>
 {findings_block}
 <footer style="margin-top:48px;padding-top:16px;border-top:1px solid #eee;color:#999;font-size:12px;text-align:center">
-BASTION Contract Scan v{ver} — Your contract never left your computer.
+BASTION Contract Scan v{__version__} — Your contract never left your computer.
 </footer>
 </body>
 </html>'''

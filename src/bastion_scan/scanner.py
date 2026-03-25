@@ -105,12 +105,16 @@ def _is_negated(text: str, match: re.Match) -> bool:
     # Look back to nearest sentence boundary (period, newline, or start)
     before_start = max(0, match.start() - 150)
     before_text = text[before_start:match.start()].lower()
-    # Trim to same sentence — find last sentence break
+    # Trim to same sentence — find closest sentence break across all separator types
+    best_pos = -1
+    best_len = 0
     for sep in [". ", ".\n", "\n\n", "\n"]:
-        last_break = before_text.rfind(sep)
-        if last_break != -1:
-            before_text = before_text[last_break + len(sep):]
-            break
+        pos = before_text.rfind(sep)
+        if pos > best_pos:
+            best_pos = pos
+            best_len = len(sep)
+    if best_pos != -1:
+        before_text = before_text[best_pos + best_len:]
     before_words = before_text.split()[-10:]
 
     after_end = min(len(text), match.end() + 80)

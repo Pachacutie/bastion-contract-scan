@@ -48,7 +48,7 @@ def extract_from_pdf(path: Path) -> ExtractionResult:
 def extract_from_text(path: Path) -> ExtractionResult:
     """Extract text from a plain text file."""
     return ExtractionResult(
-        text=path.read_text(encoding="utf-8"),
+        text=path.read_text(encoding="utf-8", errors="replace"),
         source=str(path),
     )
 

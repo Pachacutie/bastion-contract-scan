@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import tempfile
+import threading
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -15,19 +16,29 @@ from .readability import compute_readability
 from .report import render
 from .scanner import scan
 
-# Rate limiting: {ip: [timestamps]}
 _rate_log: dict[str, list[float]] = defaultdict(list)
-_RATE_LIMIT = 10  # requests per minute
-_RATE_WINDOW = 60  # seconds
+_rate_lock = threading.Lock()
+_RATE_LIMIT = 10
+_RATE_WINDOW = 60
+_last_cleanup = 0.0
 
 
 def _is_rate_limited(ip: str) -> bool:
+    global _last_cleanup
     now = time.time()
-    _rate_log[ip] = [t for t in _rate_log[ip] if now - t < _RATE_WINDOW]
-    if len(_rate_log[ip]) >= _RATE_LIMIT:
-        return True
-    _rate_log[ip].append(now)
-    return False
+    with _rate_lock:
+        # Prune stale IPs every 5 minutes
+        if now - _last_cleanup > 300:
+            stale = [k for k, v in _rate_log.items() if not v or now - v[-1] > _RATE_WINDOW]
+            for k in stale:
+                del _rate_log[k]
+            _last_cleanup = now
+
+        _rate_log[ip] = [t for t in _rate_log[ip] if now - t < _RATE_WINDOW]
+        if len(_rate_log[ip]) >= _RATE_LIMIT:
+            return True
+        _rate_log[ip].append(now)
+        return False
 
 
 def create_app() -> Flask:
@@ -50,24 +61,26 @@ def create_app() -> Flask:
         tmp_path = None
         try:
             extraction, tmp_path = _extract_from_request()
+            result = scan(extraction.text)
+            readability = compute_readability(extraction.text)
+            report_html = render(
+                extraction, result,
+                readability=readability,
+                fmt="html",
+                verbose=True,
+            )
+            return render_template("index.html", hosted=is_hosted, report_html=report_html)
         except ValueError as e:
             return render_template("index.html", hosted=is_hosted, error=str(e))
+        except Exception:
+            return render_template("index.html", hosted=is_hosted,
+                                   error="Something went wrong processing your file. Please try a different file or paste the text directly.")
         finally:
             if tmp_path:
                 try:
                     os.unlink(tmp_path)
                 except OSError:
                     pass
-
-        result = scan(extraction.text)
-        readability = compute_readability(extraction.text)
-        report_html = render(
-            extraction, result,
-            readability=readability,
-            fmt="html",
-            verbose=True,
-        )
-        return render_template("index.html", hosted=is_hosted, report_html=report_html)
 
     return app
 
